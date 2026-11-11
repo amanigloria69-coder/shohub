@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Contact Us - ShopHub{% endblock %}
+{% block content %}
+<div class="grid2">
+  <div class="card page">
+    <h1>Contact Us</h1>
+    <p>Send us a message and we will reply by email.</p>
+    {% if site.phone %}<p><strong>Phone:</strong> {{ site.phone }}</p>{% endif %}
+    {% if site.email %}<p><strong>Email:</strong> {{ site.email }}</p>{% endif %}
+  </div>
+  <div class="card">
+    <form method="post" novalidate>
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <label>Your name <input type="text" name="name" value="{{ form.name }}" required></label>
+      <label>Your email <input type="email" name="email" value="{{ form.email }}" required></label>
+      <label>Message <textarea name="message" rows="5" maxlength="2000" required>{{ form.message }}</textarea></label>
+      <button class="btn" type="submit">Send message</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

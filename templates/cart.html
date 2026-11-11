@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Your cart - ShopHub{% endblock %}
+{% block content %}
+<h1>Your cart</h1>
+{% if items %}
+<div class="cart-layout">
+  <div class="card" style="padding:8px 16px">
+    <div class="table-wrap">
+    <table class="cart-table" id="cartTable"
+           data-update-url="{{ url_for('cart_update') }}" data-remove-url="{{ url_for('cart_remove') }}">
+      <tr><th></th><th>Product</th><th>Unit price</th><th>Quantity</th><th>Subtotal</th><th></th></tr>
+      {% for it in items %}
+      <tr class="cart-row" data-id="{{ it.product_id }}" data-stock="{{ it.stock }}">
+        <td><img class="thumb" src="{{ url_for('product_image', filename=it.image_filename) }}" alt="{{ it.name }}"></td>
+        <td>
+          <a href="{{ url_for('product_detail', pid=it.product_id) }}">{{ it.name }}</a>
+          <div class="warn" {% if it.quantity <= it.stock %}hidden{% endif %}>
+            {{ 'Out of stock - please remove this item.' if it.stock == 0 else 'Only ' ~ it.stock ~ ' available - please reduce the quantity.' }}
+          </div>
+        </td>
+        <td>{{ it.price|money }}</td>
+        <td>
+          <div class="qty">
+            <button type="button" class="qty-btn minus" aria-label="Decrease quantity">&minus;</button>
+            <input type="number" class="qty-input" value="{{ it.quantity }}" min="1" max="{{ it.stock }}" aria-label="Quantity">
+            <button type="button" class="qty-btn plus" aria-label="Increase quantity">+</button>
+          </div>
+        </td>
+        <td class="subtotal">{{ (it.quantity * it.price)|money }}</td>
+        <td>
+          <form method="post" action="{{ url_for('cart_remove') }}" class="remove-form">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+            <input type="hidden" name="product_id" value="{{ it.product_id }}">
+            <button type="submit" class="trash" aria-label="Remove {{ it.name }}" title="Remove">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    </div>
+  </div>
+  <aside class="card summary">
+    <h2>Order summary</h2>
+    <p>Items: <strong id="itemCount">{{ count }}</strong></p>
+    <p class="grand">Grand total <strong id="grandTotal">{{ total|money }}</strong></p>
+    <a class="btn block" href="{{ url_for('checkout') }}">Proceed to checkout</a>
+    <p class="muted small-text">Delivery fee and taxes are shown at checkout.</p>
+    <p><a href="{{ url_for('buyer_dashboard') }}">&larr; Continue shopping</a></p>
+  </aside>
+</div>
+{% else %}
+<div class="card empty">
+  <p>Your cart is empty.</p>
+  <a class="btn" href="{{ url_for('buyer_dashboard') }}">Browse products</a>
+</div>
+{% endif %}
+{% endblock %}

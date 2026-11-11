@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_macros.html" import stock_badge %}
+{% block title %}ShopHub - Everyday essentials, delivered{% endblock %}
+{% block content %}
+<section class="home-hero card commerce-hero">
+  <div class="hero-copy">
+    <p class="eyebrow">New season, new finds</p>
+    <h1>Everything you need, all in one place.</h1>
+    <p>Discover quality products from trusted local sellers, with simple checkout and secure order tracking.</p>
+    <div class="hero-actions">
+      <a class="btn big" href="{{ url_for('catalog') }}">Shop now</a>
+      <a class="btn secondary big" href="{{ url_for('catalog') }}?q=featured">Featured products</a>
+    </div>
+  </div>
+  <div class="hero-badge"><span>Free local delivery</span><strong>On qualifying orders</strong></div>
+</section>
+
+<section class="service-strip" aria-label="ShopHub benefits">
+  <article><strong>Fast delivery</strong><span>Track every order</span></article>
+  <article><strong>Secure payment</strong><span>Protected checkout</span></article>
+  <article><strong>Easy returns</strong><span>Shop with confidence</span></article>
+  <article><strong>Buyer support</strong><span>Help when you need it</span></article>
+</section>
+
+<section class="shop-categories" aria-labelledby="category-heading">
+  <div class="section-heading"><div><p class="eyebrow">Explore the store</p><h2 id="category-heading">Shop by popular category</h2></div><a href="{{ url_for('catalog') }}">View all products</a></div>
+  <div class="category-grid">
+    <a href="{{ url_for('catalog') }}?q=phone" class="category-card"><span>01</span><strong>Phones &amp; tech</strong><small>Explore devices</small></a>
+    <a href="{{ url_for('catalog') }}?q=fashion" class="category-card"><span>02</span><strong>Fashion</strong><small>Refresh your style</small></a>
+    <a href="{{ url_for('catalog') }}?q=home" class="category-card"><span>03</span><strong>Home &amp; living</strong><small>Make it yours</small></a>
+    <a href="{{ url_for('catalog') }}?q=beauty" class="category-card"><span>04</span><strong>Beauty</strong><small>Daily essentials</small></a>
+  </div>
+</section>
+
+<section class="featured-products" aria-labelledby="featured-heading">
+  <div class="section-heading"><div><p class="eyebrow">Fresh arrivals</p><h2 id="featured-heading">Recently added products</h2></div><a href="{{ url_for('catalog') }}">Shop the catalogue</a></div>
+  {% if products %}
+  <div class="product-grid">
+    {% for p in products %}
+    <article class="product-card {{ 'is-out' if p.stock == 0 }}">
+      <a href="{{ url_for('product_detail', pid=p.id) }}" class="pc-img">
+        <img src="{{ url_for('product_image', filename=p.image_filename) }}" alt="{{ p.name }}" loading="lazy">
+        {% if p.stock == 0 %}<span class="ribbon">Out of Stock</span>{% endif %}
+        {% if loop.first %}<span class="ribbon new-ribbon">New</span>{% endif %}
+      </a>
+      <div class="pc-body">
+        <h3><a href="{{ url_for('product_detail', pid=p.id) }}">{{ p.name }}</a></h3>
+        <div class="price">{{ p.price|money }}</div>
+        {{ stock_badge(p) }}
+        {% if p.description %}<p class="product-description-preview">{{ p.description|truncate(105, true, '…') }}</p>{% endif %}
+        <a class="product-link" href="{{ url_for('product_detail', pid=p.id) }}">View product <span aria-hidden="true">→</span></a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card empty"><p>No products have been listed yet. Please check back soon.</p></div>
+  {% endif %}
+</section>
+
+<section class="commerce-banner">
+  <div><p class="eyebrow">Made for every shopper</p><h2>Find the right product. Place your order in minutes.</h2></div>
+  <a class="btn secondary" href="{{ url_for('catalog') }}">Start shopping</a>
+</section>
+{% endblock %}

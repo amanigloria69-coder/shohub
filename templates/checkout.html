@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Checkout - ShopHub{% endblock %}
+{% block mainclass %}wide{% endblock %}
+{% block content %}
+<h1>Checkout</h1>
+<div class="checkout">
+  <form method="post" class="co-form" id="checkoutForm">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+
+    <section class="co-section">
+      <h2>Contact</h2>
+      <label>Email <input type="email" name="email" value="{{ values.email }}" readonly aria-describedby="emailnote"></label>
+      <label>Phone number <input type="tel" name="phone" value="{{ values.phone }}" placeholder="0788 123 456" autocomplete="tel" required></label>
+      <p class="muted small-text"><span id="emailnote">Order updates are sent to your verified account email.</span> We use your phone number for delivery.</p>
+    </section>
+
+    <section class="co-section">
+      <h2>Payment</h2>
+      <p class="muted">Choose how you want to pay. <strong>Demo mode:</strong> card and MoMo payments are simulated until MTN payment API credentials are configured.</p>
+      <div class="pay-options">
+        {% for key, label in payment_labels.items() %}
+        <div class="pay-block">
+          <label class="pay-opt {{ 'selected' if values.payment == key }}">
+            <input type="radio" name="payment" value="{{ key }}" required {{ 'checked' if values.payment == key }}>
+            <span class="pay-title">{{ label }}</span>
+            <span class="pay-logos">
+              {% if key == 'card' %}<span class="chip visa">VISA</span><span class="chip mc">Mastercard</span>
+              {% elif key == 'momo' %}<span class="chip momo">MTN MoMo</span>{% endif %}
+            </span>
+          </label>
+          <div class="pay-detail" data-for="{{ key }}" {% if values.payment != key %}hidden{% endif %}>
+            {% if key == 'card' %}
+              In a live store you would be redirected to a secure payment provider to complete your purchase.
+              In this demo the card payment is simulated: no card details are asked and nothing is charged.
+            {% elif key == 'momo' %}
+              <label>MTN MoMo number <input type="tel" name="momo" value="{{ values.momo }}" placeholder="0788 123 456" autocomplete="tel" inputmode="tel"></label>
+              In a live store a prompt would be sent to this number to approve the payment. Until MTN API credentials are configured, this project records MoMo as simulated.
+            {% else %}
+              Pay in cash when your order is delivered.
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="co-section">
+      <h2>Delivery address</h2>
+      <label>Country/Region
+        <select name="country" disabled><option>Rwanda</option></select>
+      </label>
+      <div class="row2">
+        <label>First name <input type="text" name="first_name" value="{{ values.first_name }}" autocomplete="given-name" required></label>
+        <label>Last name <input type="text" name="last_name" value="{{ values.last_name }}" autocomplete="family-name" required></label>
+      </div>
+      <label>Address <input type="text" name="address" value="{{ values.address }}" placeholder="Street, house number or landmark" autocomplete="street-address" required></label>
+      <div class="row2">
+        <label>District
+          <select name="district" required>
+            <option value="">Choose district</option>
+            {% for d in districts %}<option {{ 'selected' if values.district == d }}>{{ d }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>City / Sector <input type="text" name="city" value="{{ values.city }}" placeholder="e.g. Kigali, Remera" required></label>
+      </div>
+    </section>
+
+    <button class="btn block big" type="submit" id="placeOrder">Place order &middot; {{ totals.total|money }}</button>
+    <p class="muted small-text center-text">By placing your order you agree to our <a href="{{ url_for('returns') }}">Return Policy</a> and <a href="{{ url_for('privacy') }}">Privacy Policy</a>.</p>
+  </form>
+
+  <aside class="co-summary">
+    <ul class="co-items">
+      {% for it in items %}
+      <li>
+        <div class="co-thumb">
+          <img src="{{ url_for('product_image', filename=it.image_filename) }}" alt="{{ it.name }}">
+          <span class="qty-badge">{{ it.quantity }}</span>
+        </div>
+        <span class="co-name">{{ it.name }}</span>
+        <span class="co-price">{{ (it.quantity * it.price)|money }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    <div class="co-line"><span>Subtotal</span><span>{{ totals.subtotal|money }}</span></div>
+    <div class="co-line"><span>Delivery</span><span>{{ totals.shipping|money if totals.shipping else 'Free' }}</span></div>
+    <div class="co-line total"><span>Total</span><strong>{{ totals.total|money }}</strong></div>
+    <p class="muted small-text">Including {{ totals.tax|money }} in taxes</p>
+    <p><a href="{{ url_for('cart_view') }}">&larr; Edit cart</a></p>
+  </aside>
+</div>
+{% endblock %}

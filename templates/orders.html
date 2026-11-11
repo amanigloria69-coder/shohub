@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}My orders - ShopHub{% endblock %}
+{% block content %}
+<h1>My orders</h1>
+{% if orders %}
+  {% for o in orders %}
+  <div class="card">
+    <h2><a href="{{ url_for('order_detail', oid=o.order.id) }}">Order #{{ o.order.id }}</a>
+      <small class="muted">{{ o.order.created_at[:16].replace('T', ' ') }} UTC</small>
+      <span class="status {{ o.status|lower|replace(' ', '-') }}">{{ o.status }}</span></h2>
+    <div class="table-wrap"><table>
+      <tr><th>Product</th><th>Unit price</th><th>Qty</th><th>Subtotal</th><th>Status</th></tr>
+      {% for it in o['items'] %}
+      <tr><td>{{ it.product_name }}</td><td>{{ it.unit_price|money }}</td><td>{{ it.quantity }}</td>
+          <td>{{ (it.unit_price * it.quantity)|money }}</td>
+          <td>{{ 'Cancelled' if o.status == 'Cancelled' else (it.status or 'Placed') }}</td></tr>
+      {% endfor %}
+    </table></div>
+    <p class="grand">Total <strong>{{ o.order.total|money }}</strong>
+      <span class="muted">&middot; {{ o.order.payment_method|payment_label }} &middot; {{ o.order.payment_status or '-' }}</span></p>
+    {% if o.status == 'Placed' %}
+    <form method="post" action="{{ url_for('order_cancel', oid=o.order.id) }}" class="inline"
+          onsubmit="return confirm('Cancel order #{{ o.order.id }}? The items will go back to stock.');">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn small danger" type="submit">Cancel order</button>
+    </form>
+    {% elif o.status == 'Cancelled' %}
+    <form method="post" action="{{ url_for('order_delete', oid=o.order.id) }}" class="inline"
+          onsubmit="return confirm('Delete order #{{ o.order.id }} from your history?');">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn small secondary" type="submit">Delete from history</button>
+    </form>
+    {% else %}
+    <p class="muted small-text">Shipped orders can't be cancelled. See our <a href="{{ url_for('returns') }}">Return Policy</a>.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+<div class="card empty"><p>You have not placed any orders yet.</p>
+  <a class="btn" href="{{ url_for('buyer_dashboard') }}">Start shopping</a></div>
+{% endif %}
+{% endblock %}

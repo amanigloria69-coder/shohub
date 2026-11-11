@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy - ShopHub{% endblock %}
+{% block content %}
+<div class="card page">
+  <h1>Privacy Policy</h1>
+  <p class="muted">Sample policy for this demo store. Replace it with your own before real use.</p>
+  <h2>What we collect</h2>
+  <p>Your name, email address, phone number, delivery address and order history, so we can create your account and deliver your orders. Passwords are stored only as secure hashes - we cannot read them.</p>
+  <h2>How we use it</h2>
+  <p>To process and deliver orders, send order confirmations and password-reset emails, and answer your messages. We do not sell your personal data.</p>
+  <h2>Payments</h2>
+  <p>We never store card numbers. Card and mobile-money payments are handled by the payment provider.</p>
+  <h2>Cookies</h2>
+  <p>We use a single session cookie to keep you signed in and to protect forms. We do not use advertising cookies.</p>
+  <h2>Your rights</h2>
+  <p>You can update your name and password in <em>My Account</em>, or ask us to delete your account through the <a href="{{ url_for('contact') }}">Contact page</a>.</p>
+</div>
+{% endblock %}

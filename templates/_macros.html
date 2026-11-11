@@ -1,0 +1,15 @@
+{% macro stock_badge(p) %}
+  {% if p.stock == 0 %}<span class="stock out">Out of Stock</span>
+  {% elif p.stock <= LOW_STOCK %}<span class="stock low">Only {{ p.stock }} left</span>
+  {% else %}<span class="stock in">In stock ({{ p.stock }})</span>{% endif %}
+{% endmacro %}
+
+{% macro add_form(p, label='Add to Cart') %}
+  <form method="post" action="{{ url_for('cart_add') }}" class="add-form">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="product_id" value="{{ p.id }}">
+    <button class="btn block" type="submit" {% if p.stock == 0 %}disabled title="Out of stock"{% endif %}>
+      {{ 'Out of Stock' if p.stock == 0 else label }}
+    </button>
+  </form>
+{% endmacro %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit product' if product else 'Register product' }} - ShopHub{% endblock %}
+{% block content %}
+<div class="card form-card">
+  <h1>{{ 'Edit product' if product else 'Register product (Stock In)' }}</h1>
+  <form method="post" enctype="multipart/form-data" novalidate>
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>Product name
+      <input type="text" name="name" value="{{ values.name }}" maxlength="120" required>
+    </label>
+    <label>Description
+      <textarea name="description" rows="4" maxlength="1000" required>{{ values.description }}</textarea>
+    </label>
+    <div class="row2">
+      <label>Price (RWF)
+        <input type="number" name="price" value="{{ values.price }}" min="0.01" step="0.01" required>
+      </label>
+      <label>Stock quantity
+        <input type="number" name="stock" value="{{ values.stock }}" min="0" step="1" required>
+      </label>
+    </div>
+    <label>Product image {% if product %}<small class="inline-small">(leave empty to keep the current image)</small>{% else %}<small class="inline-small">(required - JPG, PNG, GIF or WEBP, max 2 MB)</small>{% endif %}
+      <input type="file" name="image" id="imageInput" accept="image/png,image/jpeg,image/gif,image/webp" {{ '' if product else 'required' }}>
+    </label>
+    <div class="preview-box">
+      <img id="imagePreview" alt="Image preview" {% if product %}src="{{ url_for('product_image', filename=product.image_filename) }}"{% else %}hidden{% endif %}>
+    </div>
+    <button class="btn" type="submit">{{ 'Save changes' if product else 'Register product' }}</button>
+    <a class="btn secondary" href="{{ url_for('admin_products') if session.role == 'admin' else url_for('seller_dashboard') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Create account - ShopHub{% endblock %}
+{% block content %}
+<div class="card auth-card">
+  <h1>Create account</h1>
+  <p class="sub">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+  <form method="post" id="registerForm" data-confirm novalidate>
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>Full name <input type="text" name="full_name" value="{{ form.full_name }}" placeholder="Your full name" autocomplete="name" required></label>
+    <label>Email <input type="email" name="email" value="{{ form.email }}" placeholder="you@example.com" autocomplete="email" required></label>
+    <label>Register as
+      <select name="role" id="roleSelect">
+        <option value="buyer" {{ 'selected' if form.role == 'buyer' }}>Buyer (I want to shop)</option>
+        <option value="seller" {{ 'selected' if form.role == 'seller' }}>Seller (I want to sell)</option>
+      </select>
+    </label>
+    <label>Password <input type="password" name="password" id="password" placeholder="Enter password" autocomplete="new-password" required></label>
+    <small id="strength"></small>
+    <label>Confirm password <input type="password" name="confirm_password" placeholder="Repeat password" autocomplete="new-password" required></label>
+    <button class="btn block" type="submit">Sign Up</button>
+  </form>
+  {% include "_social.html" %}
+</div>
+{% endblock %}

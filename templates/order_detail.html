@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ o.id }} - ShopHub{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('orders') }}">&larr; All orders</a></p>
+<div class="card">
+  <h1>Order #{{ o.id }} <span class="status {{ status|lower|replace(' ', '-') }}">{{ status }}</span></h1>
+  <p class="muted">Placed {{ o.created_at[:16].replace('T', ' ') }} UTC</p>
+  <div class="grid2">
+    <div>
+      <h3>Delivery</h3>
+      <p>{{ o.ship_name or '-' }}<br>{{ o.ship_address or '-' }}<br>{{ o.ship_city or '' }}{{ ', ' if o.ship_city and o.ship_district }}{{ o.ship_district or '' }}, Rwanda<br>
+         {{ o.contact_phone or '' }}<br>{{ o.contact_email or '' }}</p>
+    </div>
+    <div>
+      <h3>Payment</h3>
+      <p>{{ o.payment_method|payment_label }}<br><strong>{{ o.payment_status or '-' }}</strong>
+         {% if o.momo_number %}<br>MoMo: {{ o.momo_number }}{% endif %}</p>
+      <p class="muted small-text">Demo store: no real payment was taken.</p>
+    </div>
+  </div>
+  <div class="table-wrap"><table>
+    <tr><th>Product</th><th>Unit price</th><th>Qty</th><th>Subtotal</th><th>Status</th></tr>
+    {% for it in items %}
+    <tr><td>{{ it.product_name }}</td><td>{{ it.unit_price|money }}</td><td>{{ it.quantity }}</td>
+        <td>{{ (it.unit_price * it.quantity)|money }}</td>
+        <td>{{ 'Cancelled' if status == 'Cancelled' else (it.status or 'Placed') }}</td></tr>
+    {% endfor %}
+  </table></div>
+  <div class="co-totals">
+    <div class="co-line"><span>Subtotal</span><span>{{ (o.subtotal if o.subtotal is not none else o.total)|money }}</span></div>
+    <div class="co-line"><span>Delivery</span><span>{{ (o.shipping or 0)|money if o.shipping else 'Free' }}</span></div>
+    <div class="co-line total"><span>Total</span><strong>{{ o.total|money }}</strong></div>
+    {% if o.tax %}<p class="muted small-text">Including {{ o.tax|money }} in taxes</p>{% endif %}
+  </div>
+  <div class="order-actions">
+    <a class="btn" href="{{ url_for('buyer_dashboard') }}">Continue shopping</a>
+    {% if status == 'Placed' %}
+    <form method="post" action="{{ url_for('order_cancel', oid=o.id) }}" class="inline"
+          onsubmit="return confirm('Cancel this order? The items will go back to stock.');">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn danger" type="submit">Cancel order</button>
+    </form>
+    {% elif status == 'Cancelled' %}
+    <form method="post" action="{{ url_for('order_delete', oid=o.id) }}" class="inline"
+          onsubmit="return confirm('Delete this order from your history?');">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn secondary" type="submit">Delete from history</button>
+    </form>
+    {% else %}
+    <span class="muted small-text">Shipped orders can't be cancelled. See our <a href="{{ url_for('returns') }}">Return Policy</a>.</span>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

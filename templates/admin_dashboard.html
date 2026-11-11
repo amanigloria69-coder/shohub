@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - ShopHub{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Administrator Dashboard</h1>
+  <div class="admin-actions">
+    <a class="btn" href="{{ url_for('admin_products') }}">Manage all products</a>
+    <a class="btn secondary" href="{{ url_for('admin_orders') }}">Manage orders</a>
+  </div></div>
+<div class="stats">
+  <div class="card stat"><strong>{{ counts.get('admin', 0) }}</strong> Admins</div>
+  <div class="card stat"><strong>{{ counts.get('seller', 0) }}</strong> Sellers</div>
+  <div class="card stat"><strong>{{ counts.get('buyer', 0) }}</strong> Buyers</div>
+</div>
+<div class="card">
+  <h2>Manage users</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.full_name }}</td>
+      <td>{{ u.email }}</td>
+      <td><span class="badge role-{{ u.role }}">{{ u.role }}</span></td>
+      <td>{{ 'Active' if u.is_active else 'Deactivated' }}{% if u.id in locked_now %} <span class="badge role-locked">locked</span>{% endif %}{% if not u.email_verified %} <span class="badge role-locked">unverified</span>{% endif %}</td>
+      <td>
+        {% if u.id != session.user_id %}
+        <form method="post" class="inline">
+          <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          <input type="hidden" name="user_id" value="{{ u.id }}">
+          <select name="role">
+            {% for r in ['admin', 'seller', 'buyer'] %}
+              <option {{ 'selected' if u.role == r }}>{{ r }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn small" name="action" value="role">Set role</button>
+          <button class="btn small danger" name="action" value="toggle">{{ 'Deactivate' if u.is_active else 'Activate' }}</button>
+          {% if u.id in locked_now %}<button class="btn small" name="action" value="unlock">Unlock</button>{% endif %}
+          {% if not u.email_verified %}<button class="btn small" name="action" value="verify">Verify email</button>{% endif %}
+        </form>
+        {% else %}<em>(you)</em>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table></div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Confirm your email - ShopHub{% endblock %}
+{% block content %}
+<div class="card auth-card">
+  <h1>Confirm your email</h1>
+  <p class="sub">Select the button below to verify your email address and activate your ShopHub account.</p>
+  <form method="post">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button class="btn block" type="submit">Confirm my email address</button>
+  </form>
+</div>
+{% endblock %}

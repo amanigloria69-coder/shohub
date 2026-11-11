@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}About Us - ShopHub{% endblock %}
+{% block content %}
+<div class="card page">
+  <h1>About Us</h1>
+  <p>ShopHub is an online marketplace where sellers list their products and buyers in Rwanda can browse, add items to a cart and order with delivery to their door.</p>
+  <h2>What we offer</h2>
+  <ul>
+    <li>A growing catalog from independent sellers.</li>
+    <li>Clear prices in Rwandan francs, with taxes included.</li>
+    <li>Flexible payment: card, MTN MoMo or cash on delivery.</li>
+    <li>A secure account for every buyer and seller.</li>
+  </ul>
+  <p>Have a question? Visit our <a href="{{ url_for('contact') }}">Contact page</a>.</p>
+</div>
+{% endblock %}

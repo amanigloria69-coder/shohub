@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}My Account - ShopHub{% endblock %}
+{% block content %}
+<h1>My Account</h1>
+<div class="grid2">
+  <div class="card">
+    <h2>Profile</h2>
+    <p>Email: <strong>{{ user.email }}</strong><br>Role: <strong>{{ user.role }}</strong><br>
+       Member since: {{ user.created_at }}<br>
+       Sign-in: <strong>{{ 'Email + password' if has_password else '' }}{{ ' and ' if has_password and providers }}{{ providers|join(', ') }}</strong></p>
+    <form method="post">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="update_profile">
+      <label>Full name <input type="text" name="full_name" value="{{ user.full_name }}" required></label>
+      <button class="btn" type="submit">Save</button>
+    </form>
+  </div>
+  <div class="card">
+    <h2>{{ 'Change password' if has_password else 'Set a password' }}</h2>
+    {% if not has_password %}<p class="sub">You signed up with a social account. Set a password if you also want to log in with your email.</p>{% endif %}
+    <form method="post">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="change_password">
+      {% if has_password %}
+      <label>Current password <input type="password" name="current_password" autocomplete="current-password" required></label>
+      {% endif %}
+      <label>New password <input type="password" name="new_password" autocomplete="new-password" required></label>
+      <button class="btn" type="submit">Save password</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

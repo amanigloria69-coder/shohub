@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "_macros.html" import stock_badge, add_form %}
+{% block title %}Shop - ShopHub{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Shop</h1>
+  <form method="get" class="search">
+    <input type="search" name="q" value="{{ q }}" placeholder="Search products..." aria-label="Search products">
+    <button class="btn" type="submit">Search</button>
+  </form>
+</div>
+{% if products %}
+<div class="product-grid">
+  {% for p in products %}
+  <article class="product-card {{ 'is-out' if p.stock == 0 }}">
+    <a href="{{ url_for('product_detail', pid=p.id) }}" class="pc-img">
+      <img src="{{ url_for('product_image', filename=p.image_filename) }}" alt="{{ p.name }}" loading="lazy">
+      {% if p.stock == 0 %}<span class="ribbon">Out of Stock</span>{% endif %}
+    </a>
+    <div class="pc-body">
+      <h3><a href="{{ url_for('product_detail', pid=p.id) }}">{{ p.name }}</a></h3>
+      <div class="price">{{ p.price|money }}</div>
+      {{ stock_badge(p) }}
+      {% if p.description %}<p class="product-description-preview">{{ p.description|truncate(105, true, '…') }}</p>{% endif %}
+      {{ add_form(p) }}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card empty">
+  <p>{{ 'No products match "' ~ q ~ '".' if q else 'No products have been listed yet. Please check back soon.' }}</p>
+</div>
+{% endif %}
+{% endblock %}

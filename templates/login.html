@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Log in - ShopHub{% endblock %}
+{% block content %}
+<div class="card auth-card">
+  <h1>Welcome back</h1>
+  <p class="sub">Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+  <form method="post" novalidate>
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>Email <input type="email" name="email" value="{{ email }}" placeholder="you@example.com" autocomplete="email" required autofocus></label>
+    <label>Password <input type="password" name="password" placeholder="Enter password" autocomplete="current-password" required></label>
+    <p class="forgot"><a href="{{ url_for('forgot_password') }}">Forgot your password?</a></p>
+    <button class="btn block" type="submit">Log in</button>
+  </form>
+  {% if not unverified %}
+  <details class="resend-box">
+    <summary>Didn't get the verification email?</summary>
+    <form method="post" action="{{ url_for('resend_verification') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <label>Your email <input type="email" name="email" placeholder="you@example.com" required></label>
+      <button class="btn secondary block" type="submit">Resend verification email</button>
+    </form>
+  </details>
+  {% endif %}
+  {% if unverified %}
+  <form method="post" action="{{ url_for('resend_verification') }}" class="resend">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="email" value="{{ unverified }}">
+    <button class="btn secondary block" type="submit">Resend verification email</button>
+  </form>
+  {% endif %}
+  {% include "_social.html" %}
+</div>
+{% endblock %}

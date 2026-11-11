@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - ShopHub{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ title }}</h1>
+  <a class="btn" href="{{ url_for('product_new') }}">+ Register product</a>
+</div>
+<div class="stats">
+  <div class="card stat"><strong>{{ stats.count }}</strong> Products</div>
+  <div class="card stat"><strong>{{ stats.units }}</strong> Units in stock</div>
+  <div class="card stat"><strong>{{ stats.out }}</strong> Out of stock</div>
+</div>
+<div class="card">
+  {% if products %}
+  <div class="table-wrap"><table>
+    <tr><th></th><th>Name</th>{% if show_seller %}<th>Seller</th>{% endif %}<th>Price</th><th>Stock</th><th>Actions</th></tr>
+    {% for p in products %}
+    <tr>
+      <td><img class="thumb" src="{{ url_for('product_image', filename=p.image_filename) }}" alt="{{ p.name }}"></td>
+      <td>{{ p.name }}</td>
+      {% if show_seller %}<td>{{ p.seller_name }}</td>{% endif %}
+      <td>{{ p.price|money }}</td>
+      <td>{% if p.stock == 0 %}<span class="stock out">Out of Stock</span>{% else %}{{ p.stock }}{% endif %}</td>
+      <td>
+        <form method="post" class="inline" action="{{ url_for('product_delete', pid=p.id) }}"
+              onsubmit="return confirm('Delete this product? This cannot be undone.');">
+          <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          <a class="btn small" href="{{ url_for('product_edit', pid=p.id) }}">Edit</a>
+          <button class="btn small danger" type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table></div>
+  {% else %}
+  <p class="empty-text">No products yet. Click <strong>Register product</strong> to add your first one.</p>
+  {% endif %}
+</div>
+{% endblock %}

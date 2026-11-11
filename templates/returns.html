@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Return Policy - ShopHub{% endblock %}
+{% block content %}
+<div class="card page">
+  <h1>Return Policy</h1>
+  <p class="muted">Sample policy for this demo store. Replace it with your own before real use.</p>
+  <h2>Returns</h2>
+  <p>You may return an item within 7 days of delivery if it is unused and in its original packaging.</p>
+  <h2>Damaged or wrong items</h2>
+  <p>If your order arrives damaged or is not what you ordered, contact us within 48 hours with your order number and a photo. We will replace the item or refund you.</p>
+  <h2>Refunds</h2>
+  <p>Approved refunds are returned using the original payment method within 7 working days. Cash-on-delivery refunds are sent by MTN MoMo.</p>
+  <h2>How to start a return</h2>
+  <p>Use our <a href="{{ url_for('contact') }}">Contact page</a> and include your order number.</p>
+</div>
+{% endblock %}

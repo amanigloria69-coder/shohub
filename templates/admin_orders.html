@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}All orders - ShopHub{% endblock %}
+{% block content %}
+<div class="page-head"><h1>All orders</h1>
+  <form method="get" class="search">
+    <select name="status" onchange="this.form.submit()" aria-label="Filter by status">
+      <option value="">All statuses</option>
+      {% for s in statuses %}<option {{ 'selected' if wanted == s }}>{{ s }}</option>{% endfor %}
+    </select>
+  </form>
+</div>
+{% if groups %}
+  {% for g in groups %}
+  {% set o = g.order %}
+  <div class="card">
+    <h2>Order #{{ o.id }}
+      <small class="muted">{{ o.created_at[:16].replace('T', ' ') }} UTC &middot; {{ o.buyer_name }} ({{ o.buyer_email }})</small>
+      <span class="status {{ g.status|lower|replace(' ', '-') }}">{{ g.status }}</span></h2>
+    <p class="muted small-text">Deliver to: {{ o.ship_name or '-' }}, {{ o.ship_address or '-' }}, {{ o.ship_city or '' }} {{ o.ship_district or '' }} &middot;
+       {{ o.contact_phone or '-' }} &middot; {{ o.payment_method|payment_label }} - {{ o.payment_status or '-' }}</p>
+    <div class="table-wrap"><table>
+      <tr><th>Product</th><th>Seller</th><th>Qty</th><th>Subtotal</th><th>Status</th></tr>
+      {% for it in g['items'] %}
+      <tr><td>{{ it.product_name }}</td><td>{{ it.seller_name or '-' }}</td><td>{{ it.quantity }}</td>
+          <td>{{ (it.unit_price * it.quantity)|money }}</td>
+          <td>{{ 'Cancelled' if g.status == 'Cancelled' else (it.status or 'Placed') }}</td></tr>
+      {% endfor %}
+    </table></div>
+    <p class="grand">Total <strong>{{ o.total|money }}</strong></p>
+    {% if g.status != 'Cancelled' %}
+    <div class="order-actions">
+      {% if g['items']|selectattr('status', 'equalto', 'Placed')|list %}
+      <form method="post" action="{{ url_for('order_fulfil', oid=o.id) }}" class="inline">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="status" value="Shipped">
+        <button class="btn small" type="submit">Mark all as shipped</button>
+      </form>
+      {% endif %}
+      {% if g['items']|selectattr('status', 'equalto', 'Shipped')|list %}
+      <form method="post" action="{{ url_for('order_fulfil', oid=o.id) }}" class="inline">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="status" value="Delivered">
+        <button class="btn small" type="submit">Mark all as delivered</button>
+      </form>
+      {% endif %}
+      {% if g.status == 'Placed' %}
+      <form method="post" action="{{ url_for('admin_order_cancel', oid=o.id) }}" class="inline"
+            onsubmit="return confirm('Cancel order #{{ o.id }}? The items will go back to stock.');">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <button class="btn small danger" type="submit">Cancel order</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+<div class="card empty"><p>No orders{{ ' with status ' ~ wanted if wanted }}.</p></div>
+{% endif %}
+{% endblock %}

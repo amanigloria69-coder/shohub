@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "_macros.html" import stock_badge, add_form %}
+{% block title %}{{ p.name }} - ShopHub{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('catalog') }}">&larr; Back to products</a></p>
+<div class="card detail">
+  <img src="{{ url_for('product_image', filename=p.image_filename) }}" alt="{{ p.name }}">
+  <div>
+    <h1>{{ p.name }}</h1>
+    <div class="price big">{{ p.price|money }}</div>
+    {{ stock_badge(p) }}
+    <section class="product-description">
+      <h2>Description</h2>
+      <p class="desc">{{ p.description }}</p>
+    </section>
+    <p class="muted">Sold by {{ p.seller_name }}</p>
+    {% if session.get('role') == 'buyer' %}
+      {{ add_form(p) }}
+    {% elif not session.get('user_id') %}
+      <a class="btn block" href="{{ url_for('login') }}">Log in to add to cart</a>
+    {% else %}
+      <p class="small-text muted">Personal carts are available to buyer accounts.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

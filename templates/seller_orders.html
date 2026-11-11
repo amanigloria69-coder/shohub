@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Orders - ShopHub{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Orders for my products</h1>
+  <a class="btn secondary" href="{{ url_for('seller_dashboard') }}">&larr; My products</a></div>
+<p class="muted">Only your own products are shown. Mark them Shipped when they leave, then Delivered when they arrive. Shipped items can no longer be cancelled by the buyer.</p>
+{% if groups %}
+  {% for g in groups %}
+  {% set o = g.order %}
+  <div class="card">
+    <h2>Order #{{ o.id }}
+      <small class="muted">{{ o.created_at[:16].replace('T', ' ') }} UTC</small>
+      <span class="status {{ g.status|lower|replace(' ', '-') }}">{{ g.status }}</span></h2>
+    <div class="grid2">
+      <div>
+        <h3>Deliver to</h3>
+        <p>{{ o.ship_name or o.buyer_name }}<br>{{ o.ship_address or '-' }}<br>
+           {{ o.ship_city or '' }}{{ ', ' if o.ship_city and o.ship_district }}{{ o.ship_district or '' }}<br>
+           Phone: {{ o.contact_phone or '-' }}</p>
+      </div>
+      <div>
+        <h3>Payment</h3>
+        <p>{{ o.payment_method|payment_label }}<br><strong>{{ o.payment_status or '-' }}</strong></p>
+      </div>
+    </div>
+    <div class="table-wrap"><table>
+      <tr><th>Product</th><th>Unit price</th><th>Qty</th><th>Subtotal</th><th>Status</th></tr>
+      {% for it in g['items'] %}
+      <tr><td>{{ it.product_name }}</td><td>{{ it.unit_price|money }}</td><td>{{ it.quantity }}</td>
+          <td>{{ (it.unit_price * it.quantity)|money }}</td>
+          <td>{{ 'Cancelled' if g.status == 'Cancelled' else (it.status or 'Placed') }}</td></tr>
+      {% endfor %}
+    </table></div>
+    <p class="grand">Your items <strong>{{ g.mine_total|money }}</strong></p>
+    {% if g.status != 'Cancelled' %}
+    <div class="order-actions">
+      {% if g['items']|selectattr('status', 'equalto', 'Placed')|list %}
+      <form method="post" action="{{ url_for('order_fulfil', oid=o.id) }}" class="inline">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="status" value="Shipped">
+        <button class="btn" type="submit">Mark as shipped</button>
+      </form>
+      {% endif %}
+      {% if g['items']|selectattr('status', 'equalto', 'Shipped')|list %}
+      <form method="post" action="{{ url_for('order_fulfil', oid=o.id) }}" class="inline">
+        <input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="status" value="Delivered">
+        <button class="btn" type="submit">Mark as delivered</button>
+      </form>
+      {% endif %}
+    </div>
+    {% else %}<p class="muted small-text">Cancelled by the buyer - the items went back to stock.</p>{% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+<div class="card empty"><p>No orders for your products yet.</p></div>
+{% endif %}
+{% endblock %}
